@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Corridor 9 — A first-person anomaly detection horror game. Navigate 25 dark corridors, spot the anomaly, survive. Free browser game built with Three.js." />
+  <meta name="keywords" content="horror game, browser game, anomaly detection, first-person, Three.js, free game, indie" />
+  <meta name="author" content="Negru Gabriel" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Corridor 9 – Anomaly Detection Horror Game" />
+  <meta property="og:description" content="Navigate 25 dark corridors. Spot the anomaly. One wrong choice and something comes for you. Free browser game." />
+  <meta property="og:site_name" content="Negru Gabriel Games" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Corridor 9 – Anomaly Detection Horror Game" />
+  <meta name="twitter:description" content="Navigate 25 dark corridors. Spot the anomaly. Survive." />
+
+  <title>CORRIDOR 9 – Anomaly Detection Horror Game | Negru Gabriel</title>
+
+  <script type="module" crossorigin src="assets/index-BMB0-n4m.js"></script>
+  <link rel="stylesheet" crossorigin href="assets/index-CTsSNjUt.css">
+
+  <style>
+    /* Developer website link — persistent bottom-right overlay */
+    #dev-link-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 8px 20px;
+      background: rgba(7, 7, 15, 0.92);
+      border-top: 1px solid rgba(108, 99, 255, 0.15);
+      backdrop-filter: blur(8px);
+      font-family: 'JetBrains Mono', 'Inter', monospace, sans-serif;
+    }
+
+    #dev-link-bar .bar-text {
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+    }
+
+    #dev-link-bar a {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: rgba(108, 99, 255, 0.8);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(108, 99, 255, 0.3);
+      padding-bottom: 1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    #dev-link-bar a:hover {
+      color: #a09bff;
+      border-color: #a09bff;
+    }
+
+    /* Push game canvas up so it's not covered by the bar */
+    body { padding-bottom: 34px; }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loading-content">
+      <div class="loading-title">CORRIDOR 9</div>
+      <div class="loading-subtitle">Anomaly Detection</div>
+      <div class="loading-bar-container">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+      <div class="loading-text">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Main Menu -->
+  <div id="menu-screen" class="hidden">
+    <div class="menu-overlay"></div>
+    <div class="menu-content">
+      <div class="menu-title">CORRIDOR <span class="highlight">9</span></div>
+      <div class="menu-subtitle">First-Person Anomaly Detection</div>
+      <div class="menu-divider"></div>
+      <button class="menu-btn primary" id="start-btn">▶ ENTER</button>
+      <button class="menu-btn secondary" id="instructions-btn">? INSTRUCTIONS</button>
+      <div class="menu-instructions hidden" id="instructions-panel">
+        <p>Navigate 25 corridors. At each end, choose LEFT if you spotted an anomaly, RIGHT if everything is normal.</p>
+        <p><strong>WASD</strong> - Move &bull; <strong>Mouse</strong> - Look around</p>
+        <p><strong>L</strong> - Exit Left (Anomaly) &bull; <strong>R</strong> - Exit Right (Normal)</p>
+        <p>25 correct choices to escape.</p>
+      </div>
+      <div class="menu-footer">v1.0</div>
+      <div class="menu-credits">Created by <span class="credit-name">Negru Gabriel</span></div>
+    </div>
+  </div>
+
+  <!-- Tutorial Overlay -->
+  <div id="tutorial-overlay" class="hidden">
+    <div class="tutorial-container">
+      <div class="tutorial-icon">📋</div>
+      <div class="tutorial-title">TUTORIAL - LEVEL 1</div>
+      <div class="tutorial-body">
+        <p><strong>This is a normal hallway.</strong> Remember how it looks — the walls, the objects, the lighting.</p>
+        <p>In the next levels, look for <span class="tutorial-highlight">anomalies</span> — things that are wrong, moved, missing, or changed.</p>
+        <div class="tutorial-controls">
+          <div class="tutorial-key-group">
+            <span class="tutorial-key">W A S D</span>
+            <span class="tutorial-label">Move</span>
+          </div>
+          <div class="tutorial-key-group">
+            <span class="tutorial-key">🖱</span>
+            <span class="tutorial-label">Look Around</span>
+          </div>
+          <div class="tutorial-key-group">
+            <span class="tutorial-key">L</span>
+            <span class="tutorial-label">Anomaly!</span>
+          </div>
+          <div class="tutorial-key-group">
+            <span class="tutorial-key">R</span>
+            <span class="tutorial-label">All Normal</span>
+          </div>
+        </div>
+        <p class="tutorial-footer">Walk to the end of the hallway to continue.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game HUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-crosshair">+</div>
+    <div class="hud-hint" id="hint-display">Observe carefully...</div>
+    <!-- Timer -->
+    <div class="hud-timer hidden" id="timer-container">
+      <div class="timer-bar-track">
+        <div class="timer-bar-fill" id="timer-bar"></div>
+      </div>
+      <div class="timer-text" id="timer-display">10</div>
+    </div>
+    <!-- Decision Panel -->
+    <div id="decision-panel" class="hidden">
+      <div class="decision-panel-inner">
+        <div class="decision-left">
+          <div class="decision-key-box"><span class="decision-key">L</span></div>
+          <div class="decision-label">ANOMALY</div>
+          <div class="decision-desc">Something is wrong</div>
+        </div>
+        <div class="decision-vs">OR</div>
+        <div class="decision-right">
+          <div class="decision-key-box"><span class="decision-key">R</span></div>
+          <div class="decision-label">NORMAL</div>
+          <div class="decision-desc">Everything is fine</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback Overlay -->
+  <div id="feedback-overlay" class="hidden"></div>
+  <div id="feedback-text" class="hidden"></div>
+
+  <!-- Win Screen -->
+  <div id="win-screen" class="hidden">
+    <div class="win-overlay"></div>
+    <div class="win-content">
+      <div class="win-icon">✦</div>
+      <div class="win-title">ESCAPED</div>
+      <div class="win-subtitle">You successfully navigated all 25 corridors.</div>
+      <div class="win-stats">
+        <div class="stat">Anomalies Detected: <span id="anomalies-detected">0</span></div>
+        <div class="stat">Time: <span id="final-time">0:00</span></div>
+      </div>
+      <button class="menu-btn primary" id="replay-btn">▶ PLAY AGAIN</button>
+      <button class="menu-btn secondary" id="menu-btn">MENU</button>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div id="gameover-screen" class="hidden">
+    <div class="gameover-overlay"></div>
+    <div class="gameover-content">
+      <div class="gameover-icon">✕</div>
+      <div class="gameover-title">CONTAINMENT BREACH</div>
+      <div class="gameover-subtitle">You chose incorrectly.</div>
+      <div class="gameover-stats">
+        <div class="stat">Level Reached: <span id="gameover-level">1</span></div>
+        <div class="stat">Correct: <span id="gameover-correct">0</span></div>
+      </div>
+      <button class="menu-btn primary" id="retry-btn">▶ RETRY</button>
+      <button class="menu-btn secondary" id="menu-btn2">MENU</button>
+    </div>
+  </div>
+
+  <!-- Developer website bar — always visible -->
+  <div id="dev-link-bar">
+    <span class="bar-text">More free browser games by Negru Gabriel →</span>
+    <a href="https://web-gam-dev.blogspot.com" target="_blank" rel="noopener">web-gam-dev.blogspot.com</a>
+  </div>
+
+</body>
+</html>
