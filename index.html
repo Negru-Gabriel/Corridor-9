@@ -3,70 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Corridor 9 — A first-person anomaly detection horror game. Navigate 25 dark corridors, spot the anomaly, survive. Free browser game built with Three.js." />
+  <meta name="description" content="Corridor 9 — A first-person anomaly detection horror game. Navigate 15 dark corridors, spot the anomaly, survive. Free browser game built with Three.js." />
   <meta name="keywords" content="horror game, browser game, anomaly detection, first-person, Three.js, free game, indie" />
   <meta name="author" content="Negru Gabriel" />
 
   <!-- Open Graph / Social -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Corridor 9 – Anomaly Detection Horror Game" />
-  <meta property="og:description" content="Navigate 25 dark corridors. Spot the anomaly. One wrong choice and something comes for you. Free browser game." />
+  <meta property="og:description" content="Navigate 15 dark corridors. Spot the anomaly. One wrong choice and something comes for you. Free browser game." />
   <meta property="og:site_name" content="Negru Gabriel Games" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Corridor 9 – Anomaly Detection Horror Game" />
-  <meta name="twitter:description" content="Navigate 25 dark corridors. Spot the anomaly. Survive." />
+  <meta name="twitter:description" content="Navigate 15 dark corridors. Spot the anomaly. Survive." />
 
   <title>CORRIDOR 9 – Anomaly Detection Horror Game | Negru Gabriel</title>
 
   <script type="module" crossorigin src="assets/index-BMB0-n4m.js"></script>
   <link rel="stylesheet" crossorigin href="assets/index-CTsSNjUt.css">
 
-  <style>
-    /* Developer website link — persistent bottom bar */
-    #dev-link-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 99999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      padding: 8px 20px;
-      background: rgba(7, 7, 15, 0.92);
-      border-top: 1px solid rgba(108, 99, 255, 0.15);
-      backdrop-filter: blur(8px);
-      font-family: 'JetBrains Mono', 'Inter', monospace, sans-serif;
-    }
-
-    #dev-link-bar .bar-text {
-      font-size: 0.6rem;
-      letter-spacing: 0.12em;
-      color: rgba(255,255,255,0.3);
-      text-transform: uppercase;
-    }
-
-    #dev-link-bar a {
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      color: rgba(108, 99, 255, 0.8);
-      text-decoration: none;
-      border-bottom: 1px solid rgba(108, 99, 255, 0.3);
-      padding-bottom: 1px;
-      transition: color 0.2s, border-color 0.2s;
-    }
-
-    #dev-link-bar a:hover {
-      color: #a09bff;
-      border-color: #a09bff;
-    }
-
-    /* Push game canvas up so it's not covered by the bar */
-    body { padding-bottom: 34px; }
-  </style>
 </head>
 <body>
   <!-- Loading Screen -->
@@ -88,16 +44,10 @@
       <div class="menu-title">CORRIDOR <span class="highlight">9</span></div>
       <div class="menu-subtitle">First-Person Anomaly Detection</div>
       <div class="menu-divider"></div>
-      <button class="menu-btn primary" id="start-btn">▶ ENTER</button>
-      <button class="menu-btn secondary" id="instructions-btn">? INSTRUCTIONS</button>
-      <div class="menu-instructions hidden" id="instructions-panel">
-        <p>Navigate 25 corridors. At each end, choose LEFT if you spotted an anomaly, RIGHT if everything is normal.</p>
-        <p><strong>WASD</strong> - Move &bull; <strong>Mouse</strong> - Look around</p>
-        <p><strong>L</strong> - Exit Left (Anomaly) &bull; <strong>R</strong> - Exit Right (Normal)</p>
-        <p>25 correct choices to escape.</p>
-      </div>
-      <div class="menu-footer">v1.0</div>
-      <div class="menu-credits">Created by <span class="credit-name">Negru Gabriel</span></div>
+      <button class="menu-btn primary" id="start-btn" data-key="ENTER">▶ ENTER</button>
+      <button class="menu-btn secondary" id="settings-btn" data-key="S">⚙ SETTINGS</button>
+      <button class="menu-btn secondary" id="credits-btn" data-key="C">© CREDITS</button>
+      <div class="menu-footer">v1.1</div>
     </div>
   </div>
 
@@ -171,7 +121,7 @@
     <div class="win-content">
       <div class="win-icon">✦</div>
       <div class="win-title">ESCAPED</div>
-      <div class="win-subtitle">You successfully navigated all 25 corridors.</div>
+      <div class="win-subtitle">You successfully navigated all 15 corridors.</div>
       <div class="win-stats">
         <div class="stat">Anomalies Detected: <span id="anomalies-detected">0</span></div>
         <div class="stat">Time: <span id="final-time">0:00</span></div>
@@ -197,10 +147,109 @@
     </div>
   </div>
 
-  <!-- Developer website bar — always visible -->
-  <div id="dev-link-bar">
-    <span class="bar-text">More free browser games by Negru Gabriel →</span>
-    <a href="https://web-gam-dev.blogspot.com" target="_blank" rel="noopener">web-gam-dev.blogspot.com</a>
+  <!-- Pause Menu -->
+  <div id="pause-screen" class="hidden">
+    <div class="pause-overlay"></div>
+    <div class="pause-content">
+      <div class="pause-icon">❚❚</div>
+      <div class="pause-title">PAUSED</div>
+      <div class="pause-subtitle">The facility holds its breath...</div>
+      <div class="menu-divider"></div>
+      <div class="pause-info" id="pause-info"></div>
+      <button class="menu-btn primary" id="resume-btn">▶ RESUME</button>
+      <button class="menu-btn secondary" id="pause-settings-btn">⚙ SETTINGS</button>
+      <button class="menu-btn secondary" id="restart-btn">↻ RESTART</button>
+      <button class="menu-btn secondary" id="pause-menu-btn">MENU</button>
+      <div class="pause-hint">Press <span class="tutorial-key">ESC</span> to resume</div>
+    </div>
+  </div>
+
+  <!-- FPS Counter -->
+  <div id="fps-counter" class="hidden">FPS 0</div>
+
+  <!-- Settings Screen -->
+  <div id="settings-screen" class="hidden">
+    <div class="settings-overlay"></div>
+    <div class="settings-content">
+      <div class="settings-title">SETTINGS</div>
+      <div class="settings-subtitle">TUNE YOUR EXPERIENCE</div>
+      <div class="menu-divider"></div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">DISPLAY / FPS</div>
+        <div class="settings-row">
+          <span class="settings-name">Frame Rate Limit</span>
+          <div class="seg-group" id="fps-cap-group">
+            <button class="seg-btn" data-value="30">30</button>
+            <button class="seg-btn" data-value="60">60</button>
+            <button class="seg-btn" data-value="120">120</button>
+            <button class="seg-btn" data-value="0">MAX</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-name">FPS Counter</span>
+          <div class="seg-group" id="fps-counter-group">
+            <button class="seg-btn" data-value="1">ON</button>
+            <button class="seg-btn" data-value="0">OFF</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">TEXTURES / GRAPHICS</div>
+        <div class="settings-row">
+          <span class="settings-name">Quality</span>
+          <div class="seg-group" id="quality-group">
+            <button class="seg-btn" data-value="low">LOW</button>
+            <button class="seg-btn" data-value="medium">MED</button>
+            <button class="seg-btn" data-value="high">HIGH</button>
+            <button class="seg-btn" data-value="ultra">ULTRA</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-name">Mouse Sensitivity</span>
+          <div class="seg-group" id="sensitivity-group">
+            <button class="seg-btn" data-value="0.5">0.5×</button>
+            <button class="seg-btn" data-value="1">1×</button>
+            <button class="seg-btn" data-value="1.5">1.5×</button>
+            <button class="seg-btn" data-value="2">2×</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">SOUND</div>
+        <div class="settings-row">
+          <span class="settings-name">Master Volume</span>
+          <input type="range" id="master-vol" class="settings-slider" min="0" max="100" step="1" value="85">
+          <span class="settings-value" id="master-vol-val">85%</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-name">Ambient Volume</span>
+          <input type="range" id="ambient-vol" class="settings-slider" min="0" max="100" step="1" value="100">
+          <span class="settings-value" id="ambient-vol-val">100%</span>
+        </div>
+      </div>
+
+      <button class="menu-btn secondary" id="settings-back-btn">← BACK</button>
+    </div>
+  </div>
+
+  <!-- Credits Screen -->
+  <div id="credits-screen" class="hidden">
+    <div class="credits-overlay"></div>
+    <div class="credits-content">
+      <div class="credits-title">CREDITS</div>
+      <div class="menu-divider"></div>
+      <div class="credits-created">Created by <span class="credit-name">Negru Gabriel</span></div>
+      <div class="credits-list">
+        <div class="credits-line">Engine — <span>Three.js</span></div>
+        <div class="credits-line">3D Assets — <span>Secret Lab Assets</span></div>
+        <div class="credits-line">Audio — <span>Procedural (Web Audio API)</span></div>
+        <div class="credits-line">Platform — <span>Browser</span></div>
+      </div>
+      <button class="menu-btn secondary" id="credits-back-btn">← BACK</button>
+    </div>
   </div>
 
 </body>
